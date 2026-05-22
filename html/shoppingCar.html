@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车 · 校园文创栈</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { background: #f5f7fb; }
+        .cart-thumb { width: 55px; height: 55px; object-fit: cover; border-radius: 12px; background: #eef2ff; }
+        .navbar { background: white !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-graduation { background: #d68c3c; color: white; border-radius: 40px; border: none; padding: 0.3rem 1rem; }
+        .btn-graduation:hover { background: #b6622a; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="homepage.html"><i class="fas fa-graduation-cap me-2" style="color:#e76f51;"></i>文创·栈 毕业季</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="homepage.html">首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="productslist.html">商品列表</a></li>
+                <li class="nav-item"><a class="nav-link active" href="shoppingCar.html"><i class="fas fa-shopping-cart"></i> 购物车 <span id="cartCountNav" class="badge bg-danger rounded-pill ms-1">0</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="userCenterLink"><i class="fas fa-user-circle"></i> 个人中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h3><i class="fas fa-shopping-cart"></i> 我的购物车</h3>
+    <div id="cartList" class="mt-3"></div>
+    <div id="cartTotalPanel" class="bg-white p-3 rounded-3 mt-3 shadow-sm"></div>
+    <!-- 留言框区域 -->
+    <div class="bg-white p-3 rounded-3 mt-3 shadow-sm">
+        <label class="form-label fw-bold"><i class="fas fa-comment-dots"></i> 订单留言（选填）</label>
+        <textarea id="cartMessage" class="form-control" rows="2" placeholder="给卖家留言，如：定制刻字、包装要求等"></textarea>
+    </div>
+    <div class="mt-3"><a href="productslist.html" class="btn btn-outline-secondary rounded-pill">继续购物</a></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function getCurrentUser() { return JSON.parse(localStorage.getItem('campus_current_user')); }
+    let currentUser = null;
+    function getCart() { if(!currentUser) return []; let cart = JSON.parse(localStorage.getItem(`cart_${currentUser.username}`) || '[]'); cart.forEach(i => { if(i.checked === undefined) i.checked = false; }); return cart; }
+    function saveCart(cart) { localStorage.setItem(`cart_${currentUser.username}`, JSON.stringify(cart)); renderCart(); updateBadge(); }
+    function updateBadge() { let cart = getCart(); let total = cart.reduce((s,i)=>s+(i.quantity||0),0); const badge = document.getElementById('cartCountNav'); if(badge) badge.innerText = total; }
+    function setItemChecked(itemId, checked) { let cart = getCart(); let item = cart.find(i => i.id == itemId); if(item) { item.checked = checked; saveCart(cart); } }
+    function selectAll(checked) { let cart = getCart(); cart.forEach(i => i.checked = checked); saveCart(cart); }
+    
+    function renderCart() {
+        let cart = getCart();
+        let container = document.getElementById('cartList');
+        let totalPanel = document.getElementById('cartTotalPanel');
+        if(!cart.length) { container.innerHTML = '<div class="alert alert-light text-center p-5">购物车空空如也~ 去挑选好物吧</div>'; totalPanel.innerHTML = ''; return; }
+        const selectedItems = cart.filter(i => i.checked === true);
+        const selectedTotal = selectedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+        const allChecked = cart.length > 0 && cart.every(i => i.checked === true);
+        let html = `<div class="bg-white rounded-3 p-3 shadow-sm"><div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="selectAllCheck" ${allChecked ? 'checked' : ''}><label class="form-check-label fw-bold">全选</label></div>`;
+        cart.forEach(item => {
+            html += `<div class="row align-items-center border-top py-3">
+                <div class="col-1"><input type="checkbox" class="item-check cart-checkbox" data-id="${item.id}" ${item.checked ? 'checked' : ''}></div>
+                <img src="${item.imageUrl}" class="cart-thumb" onerror="this.src='https://placehold.co/55x55?text=无图'">
+                <div class="col-3"><strong>${item.name}</strong></div>
+                <div class="col-2">¥${item.price}</div>
+                <div class="col-2"><div class="input-group input-group-sm" style="width:110px;"><button class="btn btn-outline-secondary decr" data-id="${item.id}">-</button><span class="form-control text-center">${item.quantity}</span><button class="btn btn-outline-secondary incr" data-id="${item.id}">+</button></div></div>
+                <div class="col-1">¥${(item.price * item.quantity).toFixed(2)}</div>
+                <div class="col-1"><button class="btn btn-sm btn-link text-danger remove-item" data-id="${item.id}"><i class="fas fa-trash"></i></button></div>
+            </div>`;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+        totalPanel.innerHTML = `<div class="d-flex justify-content-between align-items-center"><span class="h5">合计金额: <strong class="text-primary">¥${selectedTotal.toFixed(2)}</strong></span><button class="btn btn-graduation rounded-pill px-4" id="checkoutBtn">去结算 (${selectedItems.length}件)</button></div>`;
+        document.getElementById('selectAllCheck')?.addEventListener('change', (e) => selectAll(e.target.checked));
+        document.querySelectorAll('.cart-checkbox').forEach(cb => cb.addEventListener('change', (e) => setItemChecked(parseInt(cb.dataset.id), cb.checked)));
+        document.querySelectorAll('.decr').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); let cartNow = getCart(); let idx = cartNow.findIndex(i => i.id === id); if(idx !== -1) { if(cartNow[idx].quantity > 1) cartNow[idx].quantity--; else cartNow.splice(idx,1); saveCart(cartNow); } }));
+        document.querySelectorAll('.incr').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); let cartNow = getCart(); let idx = cartNow.findIndex(i => i.id === id); if(idx !== -1) { cartNow[idx].quantity++; saveCart(cartNow); } }));
+        document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); let newCart = getCart().filter(i => i.id !== id); saveCart(newCart); }));
+        document.getElementById('checkoutBtn')?.addEventListener('click', () => { let selected = getCart().filter(i => i.checked === true); if(!selected.length) { alert('请至少选择一件商品'); return; } localStorage.setItem('checkout_selected', JSON.stringify(selected)); localStorage.setItem('cart_message', document.getElementById('cartMessage').value); window.location.href = 'order.html'; });
+    }
+    
+    if(!getCurrentUser()) window.location.href = 'load.html';
+    currentUser = getCurrentUser();
+    renderCart();
+    updateBadge();
+    document.getElementById('userCenterLink')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = 'ownerCenter.html'; });
+</script>
+</body>
+</html>

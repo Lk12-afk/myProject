@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · 文创栈毕业季</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #fdf8f0 0%, #fff0e0 100%); min-height: 100vh; display: flex; align-items: center; font-family: 'Segoe UI', system-ui; }
+        .card-login { border: none; border-radius: 28px; box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1); background: rgba(255,255,255,0.96); }
+        .btn-campus { background: #d68c3c; color: white; border-radius: 40px; font-weight: 600; padding: 10px 0; border: none; }
+        .btn-campus:hover { background: #b6622a; }
+        .btn-guest { background: #f0f2f5; color: #2c3e50; border-radius: 40px; font-weight: 500; padding: 10px 0; border: 1px solid #dee2e6; }
+        .forgot-pwd { color: #d68c3c; text-decoration: none; font-size: 0.85rem; }
+        .forgot-pwd:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-login p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-graduation-cap" style="font-size: 3rem; color:#d68c3c;"></i>
+                    <h2 class="mt-2 fw-bold" style="color: #6b3e1c;">文创·栈 毕业季</h2>
+                    <p class="text-muted">银杏寄情 · 青春不散场</p>
+                </div>
+                <h4 class="text-center fw-semibold mb-3">欢迎回来</h4>
+                <form id="loginForm">
+                    <div class="mb-3"><label class="form-label">学号/用户名</label><input type="text" class="form-control" id="loginUsername" required></div>
+                    <div class="mb-3"><label class="form-label">密码</label><input type="password" class="form-control" id="loginPassword" required></div>
+                    <div class="mb-3 text-end"><a href="#" id="forgotPwdLink" class="forgot-pwd">忘记密码？</a></div>
+                    <button type="submit" class="btn btn-campus w-100"><i class="fas fa-sign-in-alt me-2"></i>登录</button>
+                </form>
+                <div class="mt-3"><button type="button" id="guestBtn" class="btn btn-guest w-100"><i class="fas fa-user-friends me-2"></i>游客浏览</button></div>
+                <div class="text-center mt-4"><span class="text-muted">还没有账号？</span><a href="register.html" class="fw-semibold" style="color:#d68c3c;">立即注册</a></div>
+                <div class="text-center small text-muted mt-2">演示账号：demo / 123456</div>
+                <hr class="my-4"><div class="text-center small text-muted"><i class="fas fa-leaf me-1"></i> 银杏叶寄情 · 文创栈祝毕业生前程似锦</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 找回密码模态框 -->
+<div class="modal fade" id="forgotModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">找回密码</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p>请输入您的用户名，我们将为您重置密码为 <code>123456</code></p>
+                <input type="text" id="resetUsername" class="form-control" placeholder="用户名">
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" id="doResetBtn" class="btn btn-campus">重置密码</button></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 初始化演示账号（如果没有任何用户，则创建 demo 用户）
+    (function initDemoUser() {
+        let users = JSON.parse(localStorage.getItem('campus_users') || '[]');
+        if (!users.find(u => u.username === 'demo')) {
+            users.push({
+                id: Date.now(),
+                username: 'demo',
+                nickname: '毕业生同学',
+                password: '123456'
+            });
+            localStorage.setItem('campus_users', JSON.stringify(users));
+        }
+    })();
+
+    function doLogin(username, nickname, userId) {
+        const user = { userId: userId || Date.now(), username: username, nickname: nickname || username, isGuest: false };
+        localStorage.setItem('campus_current_user', JSON.stringify(user));
+        alert(`欢迎回来，${nickname || username}！`);
+        window.location.href = 'homepage.html';
+    }
+    function guestEnter() { 
+        localStorage.removeItem('campus_current_user'); 
+        alert('您正在以游客身份浏览，下单或查看个人中心时需要登录注册。'); 
+        window.location.href = 'homepage.html'; 
+    }
+
+    // 登录表单事件
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) {
+                alert('请填写用户名和密码');
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('campus_users') || '[]');
+            const findUser = users.find(u => u.username === username && u.password === password);
+            if (findUser) {
+                doLogin(findUser.username, findUser.nickname, findUser.id);
+            } else {
+                alert('用户名或密码错误，请重试或先注册');
+            }
+        });
+    } else {
+        console.error('未找到登录表单');
+    }
+
+    document.getElementById('guestBtn')?.addEventListener('click', guestEnter);
+
+    // 找回密码模态框（安全处理，防止 Bootstrap 未加载报错）
+    let forgotModal = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('forgotModal');
+        if (modalElement && typeof bootstrap !== 'undefined') {
+            forgotModal = new bootstrap.Modal(modalElement);
+        } else {
+            console.warn('Bootstrap 未加载或模态框元素缺失');
+        }
+    });
+    document.getElementById('forgotPwdLink')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (forgotModal) forgotModal.show();
+        else alert('找回密码功能暂时不可用，请联系管理员');
+    });
+    document.getElementById('doResetBtn')?.addEventListener('click', () => {
+        const username = document.getElementById('resetUsername').value.trim();
+        if (!username) { alert('请输入用户名'); return; }
+        let users = JSON.parse(localStorage.getItem('campus_users') || '[]');
+        const userIndex = users.findIndex(u => u.username === username);
+        if (userIndex === -1) { alert('用户名不存在'); return; }
+        users[userIndex].password = '123456';
+        localStorage.setItem('campus_users', JSON.stringify(users));
+        alert(`用户 ${username} 的密码已重置为 123456，请重新登录。`);
+        if (forgotModal) forgotModal.hide();
+        document.getElementById('resetUsername').value = '';
+    });
+
+    // 若已登录则跳转首页
+    if (localStorage.getItem('campus_current_user')) {
+        window.location.href = 'homepage.html';
+    }
+</script>
+</body>
+</html>

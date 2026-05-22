@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单 | 文创栈毕业季</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { background: #fdf8f0; font-family: 'Segoe UI', system-ui; }
+        .navbar { background: white !important; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .order-card { border-radius: 1.2rem; border: none; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.2rem; overflow: hidden; }
+        .status-badge { font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 30px; display: inline-block; }
+        .status-delivering { background: #fef3c7; color: #b45309; }
+        .status-waiting { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #dcfce7; color: #166534; }
+        .pickup-code { font-family: monospace; font-size: 1.2rem; font-weight: bold; background: #f1f5f9; display: inline-block; padding: 0.2rem 0.6rem; border-radius: 8px; }
+        .btn-confirm { background: #d68c3c; color: white; border-radius: 30px; padding: 0.2rem 1rem; font-size: 0.8rem; border: none; }
+        .btn-confirm:hover { background: #b6622a; }
+        .footer { background: #fff6e8; border-top: 2px solid #ffe0b5; border-radius: 2rem 2rem 0 0; padding: 1.5rem; text-align: center; margin-top: 3rem; }
+        .btn-graduation { background: #d68c3c; color: white; border-radius: 40px; border: none; padding: 0.3rem 1rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="homepage.html"><i class="fas fa-graduation-cap me-2" style="color:#e76f51;"></i>文创·栈 毕业季</a>
+        <div class="ms-auto">
+            <a href="ownerCenter.html" class="nav-link d-inline-block me-3">个人中心</a>
+            <a href="homepage.html" class="nav-link d-inline-block">首页</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h3><i class="fas fa-truck text-warning"></i> 我的订单</h3>
+    <div id="ordersContainer" class="mt-3"></div>
+</div>
+<div class="footer"><i class="fas fa-leaf me-1"></i> 银杏叶寄情 · 文创栈祝毕业生前程似锦</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function getCurrentUser() { return JSON.parse(localStorage.getItem('campus_current_user')); }
+    let user = getCurrentUser();
+    if (!user) window.location.href = 'load.html';
+    const STORAGE_KEY = `orders_${user.username}`;
+
+    function generatePickupCode() { return Math.floor(1000 + Math.random() * 9000).toString(); }
+
+    function getRealTimeStatus(order) {
+        if (order.status === '已完成') return { status: '已完成', pickupCode: order.pickupCode, countdownMsg: '订单已完成' };
+        const now = Date.now();
+        const elapsedSeconds = (now - order.createdTimestamp) / 1000;
+        let status, pickupCode, countdownMsg;
+        if (elapsedSeconds < 10) { 
+            status = '待发货'; 
+            pickupCode = null; 
+            countdownMsg = `${(10 - elapsedSeconds).toFixed(0)}秒后发货`; 
+        } else if (elapsedSeconds < 20) { 
+            status = '派送中'; 
+            pickupCode = null; 
+            countdownMsg = `${(20 - elapsedSeconds).toFixed(0)}秒后到达驿站`; 
+        } else { 
+            status = '待收货'; 
+            pickupCode = order.pickupCode || generatePickupCode(); 
+            countdownMsg = '请凭取件码到菜鸟驿站领取'; 
+        }
+        return { status, pickupCode, countdownMsg };
+    }
+
+    window.confirmReceipt = function(orderId) {
+        let orders = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const index = orders.findIndex(o => o.id === orderId);
+        if (index === -1) { alert('订单不存在'); return; }
+        const order = orders[index];
+        const { status } = getRealTimeStatus(order);
+        if (status !== '待收货') { alert(`当前订单状态为“${status}”，无法确认收货。`); return; }
+        orders[index].status = '已完成';
+        orders[index].completedTimestamp = Date.now();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+        alert('✅ 已确认收货，感谢您的支持！');
+        updateOrdersAndRender();
+    };
+
+    function updateOrdersAndRender() {
+        let orders = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        let changed = false;
+        const updatedOrders = orders.map(order => {
+            if (order.status === '已完成') return { ...order, _displayStatus: '已完成', _countdownMsg: '订单已完成', _pickupCode: order.pickupCode };
+            const { status, pickupCode, countdownMsg } = getRealTimeStatus(order);
+            let newOrder = { ...order };
+            if (newOrder.status !== status) { newOrder.status = status; changed = true; }
+            if (pickupCode && newOrder.pickupCode !== pickupCode) { newOrder.pickupCode = pickupCode; changed = true; }
+            newOrder._displayStatus = status;
+            newOrder._countdownMsg = countdownMsg;
+            newOrder._pickupCode = pickupCode;
+            return newOrder;
+        });
+        if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedOrders));
+        renderOrders(updatedOrders);
+    }
+
+    function renderOrders(orders) {
+        const container = document.getElementById('ordersContainer');
+        if (orders.length === 0) { container.innerHTML = '<div class="alert alert-light text-center p-5">暂无订单，快去下单支持文创吧~</div>'; return; }
+        let html = '';
+        orders.forEach(order => {
+            const orderId = order.id || '未知';
+            const displayStatus = order._displayStatus || order.status;
+            const isWaitingPickup = displayStatus === '待收货';
+            const pickupHtml = isWaitingPickup && order._pickupCode ? `<div class="mt-2"><i class="fas fa-qrcode"></i> 取件码：<span class="pickup-code">${order._pickupCode}</span><br><small class="text-muted">📍 收货地点：${order.deliveryLocation || '菜鸟驿站'}</small></div>` : (displayStatus === '派送中' ? `<div class="mt-2 text-muted"><i class="fas fa-truck"></i> 正在派送中...</div>` : '');
+            let statusClass = '';
+            if (displayStatus === '待发货' || displayStatus === '派送中') statusClass = 'status-delivering';
+            else if (displayStatus === '待收货') statusClass = 'status-waiting';
+            else if (displayStatus === '已完成') statusClass = 'status-completed';
+            const confirmBtn = (displayStatus === '待收货' && order.status !== '已完成') ? `<button class="btn btn-confirm ms-2" onclick="confirmReceipt('${order.id}')"><i class="fas fa-check-circle"></i> 确认收货</button>` : '';
+            html += `<div class="card order-card"><div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap"><span><strong>订单号：</strong>${orderId}</span><div><span class="status-badge ${statusClass}">${displayStatus}</span>${confirmBtn}</div></div><div class="card-body">${order.items.map(i => `<div>${i.name} x${i.quantity}  ¥${(i.price * i.quantity).toFixed(2)}</div>`).join('')}<hr><div>收货人：${order.receiver}  ${order.phone}</div><div>地址：${order.address}</div>${order.message ? `<div class="text-muted small mt-1">买家留言：${order.message}</div>` : ''}<div class="mt-2 fw-bold">总支付：¥${order.total.toFixed(2)}</div>${pickupHtml}<div class="text-muted small mt-2">下单时间：${order.createTime}</div>${order.status === '已完成' ? '<div class="text-success small mt-1"><i class="fas fa-check-circle"></i> 已完成</div>' : ''}<div class="small text-info mt-1">${order._countdownMsg}</div></div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    let timer = setInterval(() => updateOrdersAndRender(), 1000);
+    window.addEventListener('beforeunload', () => clearInterval(timer));
+    updateOrdersAndRender();
+</script>
+</body>
+</html>

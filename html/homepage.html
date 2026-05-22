@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文创栈 · 毕业季 | 银杏叶寄情</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #fdf8f0; font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif; overflow-x: hidden; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(-20vh) rotate(15deg); opacity: 0; }
+        }
+        @keyframes sway {
+            0% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(20px) rotate(5deg); }
+            100% { transform: translateX(-10px) rotate(-3deg); }
+        }
+        @keyframes fallDown {
+            0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+        }
+        .floating-cap, .floating-balloon { position: fixed; bottom: -50px; z-index: 999; pointer-events: none; animation: floatUp 8s linear forwards; }
+        .floating-balloon { animation-duration: 12s; font-size: 2.2rem; }
+        .falling-leaf {
+            position: fixed;
+            top: -30px;
+            z-index: 1000;
+            pointer-events: none;
+            font-size: 1.8rem;
+            animation: fallDown 6s linear forwards;
+        }
+        .graduate-badge {
+            background: linear-gradient(135deg, #ffd966, #ffb347);
+            border-radius: 60px;
+            padding: 0.4rem 1.5rem;
+            display: inline-block;
+            animation: sway 3s infinite ease;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+        }
+        .carousel-item { height: 420px; border-radius: 2rem; overflow: hidden; }
+        .carousel-item > div { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero-section {
+            background: linear-gradient(145deg, #ffe6cc, #ffddbb);
+            border-radius: 2rem;
+            padding: 2rem;
+            margin: 1rem 0 2rem;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,215,150,0.6);
+        }
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-radius: 1.5rem;
+            border: none;
+            background: white;
+            overflow: hidden;
+        }
+        .product-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 30px -12px rgba(0,0,0,0.2); }
+        .card-img-top-custom {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            background: #f9f3e7;
+            transition: transform 0.5s ease;
+        }
+        .product-card:hover .card-img-top-custom { transform: scale(1.03); }
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: #f4a261; color: white; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; visibility: hidden;
+        }
+        .back-to-top.show { opacity: 1; visibility: visible; }
+        .back-to-top:hover { background: #e76f51; transform: scale(1.08); }
+        .footer { margin-top: 3rem; background: #fff6e8; padding: 1.8rem; text-align: center; border-top: 2px solid #ffe0b5; border-radius: 2rem 2rem 0 0; }
+        .btn-graduation {
+            background: #d68c3c;
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 0.5rem 1.8rem;
+            transition: 0.2s;
+        }
+        .btn-graduation:hover { background: #b6622a; transform: scale(1.02); }
+        .navbar { background: rgba(255, 248, 235, 0.96) !important; backdrop-filter: blur(8px); }
+        .nav-link { font-weight: 500; color: #4a2e1e !important; }
+        .nav-link:hover { color: #e76f51 !important; }
+        .search-bar input { background: #fffcf5; border: 1px solid #ffd7a5; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="homepage.html"><i class="fas fa-graduation-cap me-2" style="color:#e76f51;"></i>文创·栈 毕业季</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="homepage.html"><i class="fas fa-home"></i> 首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="productslist.html"><i class="fas fa-store"></i> 文创商品</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="cartNavLink"><i class="fas fa-shopping-cart"></i> 购物车 <span id="cartCountNav" class="badge bg-danger rounded-pill ms-1">0</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="userCenterLink"><i class="fas fa-user-graduate"></i> 个人中心</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    <div id="animationContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1050; overflow:hidden;"></div>
+
+    <div id="campusCarousel" class="carousel slide carousel-fade mb-4" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="hover">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#campusCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#campusCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#campusCarousel" data-bs-slide-to="2"></button>
+        </div>
+        <div class="carousel-inner rounded-4">
+            <div class="carousel-item active"><div style="background: linear-gradient(125deg, #2c3e50, #1e4a6e);"><i class="fas fa-mortar-board fa-5x mb-3"></i><h3>🎓 青春不散场 · 毕业纪念 🎓</h3><p>学士服小熊 / 纪念戒指 / 手绘帆布鞋</p><a href="productslist.html?keyword=小熊 戒指" class="btn btn-light rounded-pill mt-2">珍藏青春 →</a></div><div class="carousel-caption d-none d-md-block"><h5>限定毕业礼盒</h5><p>把回忆镌刻成永恒</p></div></div>
+            <div class="carousel-item"><div style="background: linear-gradient(125deg, #d68c3c, #f4a261);"><i class="fas fa-fire fa-5x mb-3"></i><h3>🔥 毕业热销榜 🔥</h3><p>珐琅马克杯 / 烫金笔记本 / 手绘托特包</p><a href="productslist.html?category=潮玩" class="btn btn-dark rounded-pill mt-2">学长学姐同款 →</a></div><div class="carousel-caption d-none d-md-block"><h5>人气爆款 最后补货</h5></div></div>
+            <div class="carousel-item"><div style="background: linear-gradient(125deg, #219ebc, #23b5d3);"><i class="fas fa-gift fa-5x mb-3"></i><h3>🎁 毕业福利 · 满99包邮 🎁</h3><p>定制明信片 + 限定贴纸包</p><a href="productslist.html?keyword=明信片" class="btn btn-light rounded-pill mt-2">即刻凑单 →</a></div><div class="carousel-caption d-none d-md-block"><h5>赠完即止 青春记忆礼</h5></div></div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#campusCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#campusCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    </div>
+
+    <div class="hero-section text-center">
+        <div class="graduate-badge mb-3"><i class="fas fa-graduation-cap me-1"></i> 2026 毕业季限定 · 致青春 <i class="fas fa-heart" style="color:#e63946;"></i></div>
+        <h1 class="display-5 fw-bold" style="color:#6b3e1c;">银杏叶飘落，把校园时光带在身边</h1>
+        <p class="lead">校训笔记本｜珐琅徽章｜手绘帆布包｜学士熊公仔</p>
+        <div class="search-bar mt-4"><div class="input-group"><input type="text" id="homeSearchInput" class="form-control rounded-pill rounded-end" placeholder="🔍 搜索毕业文创...（试试“杯子”“笔记本”）"><button class="btn btn-graduation rounded-pill rounded-start ms-1" id="homeSearchBtn">搜索</button></div></div>
+        <a href="productslist.html" class="btn btn-outline-dark rounded-pill px-4 mt-3"><i class="fas fa-arrow-right me-1"></i> 浏览全部毕业好物</a>
+    </div>
+
+    <!-- 猜你喜欢区域 - 始终显示，无论登录与否都会展示推荐商品 -->
+    <div id="recommendSection">
+        <h3 class="fw-semibold mb-3"><i class="fas fa-lightbulb text-warning"></i> ✨ 猜你喜欢 · 毕业优选 ✨</h3>
+        <div class="row" id="recommendList"></div>
+    </div>
+
+    <h3 class="fw-semibold mb-3"><i class="fas fa-crown text-danger"></i> 🎓 毕业季热门推荐 🎓</h3>
+    <div class="row" id="homeRecommend"></div>
+</div>
+
+<div id="backToTop" class="back-to-top"><i class="fas fa-arrow-up"></i></div>
+<div class="footer"><i class="fas fa-leaf me-1"></i> 银杏叶寄情 · 文创栈祝毕业生前程似锦 <i class="fas fa-graduation-cap ms-1"></i></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ==================== 完整商品数据（52件） ====================
+   const PRODUCTS = [
+        { id: 1, name: "「未央」烫金笔记本", price: 28, imageUrl: "../images/1.jpg", desc: "校训烫金，内页护眼米黄纸，锁线装订", stock: 99, category: "文具" },
+        { id: 2, name: "青春校园文化衫", price: 69, imageUrl: "../images/2.jpg", desc: "纯棉透气，刺绣校徽，黑白两色可选", stock: 45, category: "服饰" },
+        { id: 3, name: "珐琅校徽马克杯", price: 39, imageUrl: "../images/3.jpg", desc: "陶瓷质感，立体珐琅校徽，350ml", stock: 60, category: "生活" },
+        { id: 4, name: "银杏叶金属书签", price: 18, imageUrl: "../images/4.jpg", desc: "黄铜镀金，镂空银杏叶，配流苏礼盒", stock: 120, category: "文具" },
+        { id: 5, name: "校园帆布托特包", price: 49, imageUrl: "../images/5.jpg", desc: "14安厚帆布，手绘校园地图印花", stock: 32, category: "生活" },
+        { id: 6, name: "文创纪念徽章套装", price: 35, imageUrl: "../images/6.jpg", desc: "三枚一套（校训石/图书馆/吉祥物）", stock: 88, category: "潮玩" },
+        { id: 7, name: "四季校园明信片套装", price: 22, imageUrl: "../images/7.jpg", desc: "12张手绘校园四季风景，牛皮纸信封", stock: 150, category: "文具" },
+        { id: 8, name: "校训金属钥匙扣", price: 15, imageUrl: "../images/8.jpg", desc: "锌合金蚀刻校训，精致礼盒装", stock: 200, category: "潮玩" },
+        { id: 9, name: "手账和纸胶带套装", price: 25, imageUrl: "../images/9.jpg", desc: "5卷不同图案（校徽/银杏/建筑/樱花/毕业季）", stock: 80, category: "文具" },
+        { id: 10, name: "校园羊巴皮记事本", price: 42, imageUrl: "../images/10.jpg", desc: "仿羊皮封面，复古绑带，160页横线纸", stock: 55, category: "文具" },
+        { id: 11, name: "文创保温杯", price: 79, imageUrl: "../images/11.jpg", desc: "316不锈钢，真空保温，校训激光雕刻", stock: 40, category: "生活" },
+        { id: 12, name: "毕业季小熊公仔", price: 58, imageUrl: "../images/12.jpg", desc: "穿学士服小熊，限量毕业纪念款", stock: 30, category: "潮玩" },
+        { id: 13, name: "校园帆布笔袋", price: 22, imageUrl: "../images/13.jpg", desc: "简约帆布，大容量，多色可选", stock: 110, category: "文具" },
+        { id: 14, name: "镂空金属书挡", price: 45, imageUrl: "../images/14.jpg", desc: "激光镂刻校园地标，一对装", stock: 35, category: "生活" },
+        { id: 15, name: "樱花限定圆珠笔", price: 12, imageUrl: "../images/15.jpg", desc: "樱花色笔杆，0.5mm黑色中性笔芯", stock: 180, category: "文具" },
+        { id: 16, name: "校园运动毛巾", price: 29, imageUrl: "../images/16.jpg", desc: "速干面料，刺绣校名，30x100cm", stock: 75, category: "服饰" },
+        { id: 17, name: "木质校徽冰箱贴", price: 19, imageUrl: "../images/17.jpg", desc: "激光雕刻椴木，磁吸背板", stock: 95, category: "生活" },
+        { id: 18, name: "毕业纪念册", price: 68, imageUrl: "../images/18.jpg", desc: "精装硬壳，60页校园纪念相册", stock: 28, category: "文具" },
+        { id: 19, name: "校园防泼水双肩包", price: 128, imageUrl: "../images/19.jpg", desc: "耐磨牛津布，独立电脑隔层", stock: 25, category: "生活" },
+        { id: 20, name: "金属签字笔礼盒", price: 88, imageUrl: "../images/20.jpg", desc: "黄铜笔身，可刻字，礼盒装", stock: 40, category: "文具" },
+        { id: 21, name: "校训直尺套装", price: 16, imageUrl: "../images/21.jpg", desc: "不锈钢直尺+三角尺+量角器，镭雕校训", stock: 130, category: "文具" },
+        { id: 22, name: "文创棒球帽", price: 59, imageUrl: "../images/22.jpg", desc: "棉质弯檐，刺绣校名缩写", stock: 50, category: "服饰" },
+        { id: 23, name: "硅胶卡套（一卡通）", price: 12, imageUrl: "../images/23.jpg", desc: "硅胶材质，卡通校园元素图案", stock: 220, category: "生活" },
+        { id: 24, name: "手绘地图鼠标垫", price: 28, imageUrl: "../images/24.jpg", desc: "橡胶底，高清印刷校园手绘地图", stock: 85, category: "数码周边" },
+        { id: 25, name: "毕业季学士帽钥匙扣", price: 18, imageUrl: "../images/25.jpg", desc: "迷你学士帽造型，金属烤漆", stock: 160, category: "潮玩" },
+        { id: 26, name: "校园风景拼图", price: 45, imageUrl: "../images/26.jpg", desc: "500片拼图，校园航拍全景", stock: 45, category: "潮玩" },
+        { id: 27, name: "文创闹钟小夜灯", price: 89, imageUrl: "../images/27.jpg", desc: "木质电子闹钟，三档暖光，可投影校徽", stock: 32, category: "生活" },
+        { id: 28, name: "校史文化扑克牌", price: 15, imageUrl: "../images/28.jpg", desc: "每张牌面展示校园历史照片", stock: 200, category: "潮玩" },
+        { id: 29, name: "牛皮纸档案袋收纳", price: 9, imageUrl: "../images/29.jpg", desc: "复古牛皮纸，印校训，A4大小", stock: 300, category: "文具" },
+        { id: 30, name: "文创手机壳", price: 39, imageUrl: "../images/30.jpg", desc: "液态硅胶，多型号，校园插画图案", stock: 70, category: "数码周边" },
+        { id: 31, name: "校园纪念卫衣", price: 129, imageUrl: "../images/31.jpg", desc: "加绒卫衣，oversize版型，后背大印花", stock: 38, category: "服饰" },
+        { id: 32, name: "木质万年历摆件", price: 58, imageUrl: "../images/32.jpg", desc: "榉木制作，手工拼装，可自选日期", stock: 42, category: "生活" },
+        { id: 33, name: "毕业季相框", price: 46, imageUrl: "../images/33.jpg", desc: "木质相框，可放8寸照片，激光刻字", stock: 55, category: "生活" },
+        { id: 34, name: "文创雨伞", price: 65, imageUrl: "../images/34.jpg", desc: "黑胶防晒，反向收拢，校名印花", stock: 48, category: "生活" },
+        { id: 35, name: "校园地标模型", price: 99, imageUrl: "../images/35.jpg", desc: "3D拼装木质模型，主楼微缩", stock: 25, category: "潮玩" },
+        { id: 36, name: "不锈钢餐具三件套", price: 28, imageUrl: "../images/36.jpg", desc: "勺子+筷子+叉子，便携盒装，激光刻字", stock: 90, category: "生活" },
+        { id: 37, name: "文创运动水壶", price: 55, imageUrl: "../images/37.jpg", desc: "tritan材质，运动翻盖，600ml", stock: 65, category: "生活" },
+        { id: 38, name: "校训印章", price: 32, imageUrl: "../images/38.jpg", desc: "实木手柄，橡胶印面，可作藏书章", stock: 75, category: "文具" },
+        { id: 39, name: "校园明信片盲盒", price: 35, imageUrl: "../images/39.jpg", desc: "随机8张不同校园场景明信片", stock: 110, category: "潮玩" },
+        { id: 40, name: "文创数据线", price: 19, imageUrl: "../images/40.jpg", desc: "一拖三编织线，定制校园图案", stock: 140, category: "数码周边" },
+        { id: 41, name: "毕业纪念徽章", price: 25, imageUrl: "../images/41.jpg", desc: "珐琅工艺，年份限定，别针款", stock: 80, category: "潮玩" },
+        { id: 42, name: "校园挂绳卡套", price: 16, imageUrl: "../images/42.jpg", desc: "涤纶挂绳+透明卡套，校名织带", stock: 190, category: "生活" },
+        { id: 43, name: "文创贴纸包", price: 12, imageUrl: "../images/43.jpg", desc: "20张和纸贴纸，校园主题插画", stock: 260, category: "文具" },
+        { id: 44, name: "保温饭盒袋", price: 48, imageUrl: "../images/44.jpg", desc: "铝箔保温，手提式，校园印花", stock: 58, category: "生活" },
+        { id: 45, name: "文创台历", price: 38, imageUrl: "../images/45.jpg", desc: "2026年校园风景台历，每月一幅手绘", stock: 70, category: "文具" },
+        { id: 46, name: "校园徽章领带夹", price: 42, imageUrl: "../images/46.jpg", desc: "金属领带夹，校徽立体浮雕，礼盒装", stock: 44, category: "服饰" },
+        { id: 47, name: "亚克力钥匙牌", price: 14, imageUrl: "../images/47.jpg", desc: "双面透明亚克力，内嵌校园元素", stock: 210, category: "潮玩" },
+        { id: 48, name: "文创小风扇", price: 39, imageUrl: "../images/48.jpg", desc: "USB手持风扇，三档风力，静音", stock: 85, category: "数码周边" },
+        { id: 49, name: "校园纪念硬币", price: 29, imageUrl: "../images/49.jpg", desc: "古银工艺，双面浮雕主楼，收藏盒装", stock: 100, category: "潮玩" },
+        { id: 50, name: "毕业季帆布袋", price: 59, imageUrl: "../images/50.jpg", desc: "加厚帆布，“前程似锦”烫金文字", stock: 70, category: "生活" },
+        { id: 51, name: "校园手绘帆布鞋", price: 89, imageUrl: "../images/51.jpg", desc: "原创手绘校园风景，帆布材质，透气内里", stock: 35, category: "服饰" },
+        { id: 52, name: "毕业纪念戒指", price: 45, imageUrl: "../images/52.jpg", desc: "钛钢材质，刻字“青春不散场”，精美礼盒", stock: 60, category: "潮玩" }
+    ];
+
+    function getCurrentUser() { return JSON.parse(localStorage.getItem('campus_current_user')); }
+    function checkLoginAndRedirect() { if(!getCurrentUser()) { alert('请先登录后再查看详情'); window.location.href = 'load.html'; return false; } return true; }
+    function recordBrowse(productId) { const user = getCurrentUser(); if (!user) return; let history = JSON.parse(localStorage.getItem(`browse_${user.username}`) || '[]'); history = history.filter(id => id !== productId); history.unshift(productId); if (history.length > 20) history.pop(); localStorage.setItem(`browse_${user.username}`, JSON.stringify(history)); }
+    function goToDetail(productId) { if(checkLoginAndRedirect()) { recordBrowse(productId); window.location.href = `productInfo.html?id=${productId}`; } }
+    function updateCartBadge() { const user = getCurrentUser(); if(!user) { document.getElementById('cartCountNav').innerText='0'; return; } const cart = JSON.parse(localStorage.getItem(`cart_${user.username}`) || '[]'); const total = cart.reduce((s,i)=> s + (i.quantity||0), 0); document.getElementById('cartCountNav').innerText = total; }
+    function handleCartClick(e) { e.preventDefault(); if(!getCurrentUser()) alert('请先登录后查看购物车'); else window.location.href = 'shoppingCar.html'; }
+    function handleProfileClick(e) { 
+    e.preventDefault(); 
+    if(!getCurrentUser()) {
+        window.location.href = 'load.html';
+    } else {
+        window.location.href = 'ownerCenter.html';
+    }
+}
+    function getPurchasedIds() { const user = getCurrentUser(); if(!user) return []; const orders = JSON.parse(localStorage.getItem(`orders_${user.username}`) || '[]'); const purchased = new Set(); orders.forEach(order => order.items.forEach(item => purchased.add(item.id))); return Array.from(purchased); }
+    
+    // 增强版推荐算法：个性化 + 热门后备，始终确保有推荐商品
+    function getRecommendations() {
+        const user = getCurrentUser();
+        let purchasedIds = user ? getPurchasedIds() : [];
+        let history = user ? JSON.parse(localStorage.getItem(`browse_${user.username}`) || '[]') : [];
+        const excludeIdsSet = new Set([...history, ...purchasedIds]);
+        
+        let finalRecs = [];
+        
+        // 1. 基于浏览历史的个性化推荐（如果用户有浏览记录）
+        if (history.length > 0) {
+            const latestId = history[0];
+            const latestProduct = PRODUCTS.find(p => p.id === latestId);
+            if (latestProduct) {
+                // 推荐同类目且未浏览/未购买的商品
+                let candidates = PRODUCTS.filter(p => 
+                    p.category === latestProduct.category && 
+                    !excludeIdsSet.has(p.id)
+                );
+                finalRecs = candidates.slice(0, 4);
+            }
+        }
+        
+        // 2. 如果个性化推荐不足4个，补充固定热门商品（毕业季爆款）
+        if (finalRecs.length < 4) {
+            const hotIds = [12, 3, 5, 41, 11, 51, 4, 7, 25, 1]; // 小熊、马克杯、托特包、纪念徽章、保温杯、帆布鞋、书签、明信片、钥匙扣、笔记本
+            let hotItems = [];
+            for (let id of hotIds) {
+                if (!excludeIdsSet.has(id) && finalRecs.length + hotItems.length < 4) {
+                    const product = PRODUCTS.find(p => p.id === id);
+                    if (product) hotItems.push(product);
+                }
+            }
+            finalRecs.push(...hotItems);
+        }
+        
+        // 3. 如果还是不够，从全部商品中随机补充（排除已排除和已经添加的）
+        if (finalRecs.length < 4) {
+            const remainProducts = PRODUCTS.filter(p => 
+                !excludeIdsSet.has(p.id) && 
+                !finalRecs.some(rec => rec.id === p.id)
+            );
+            const needCount = 4 - finalRecs.length;
+            finalRecs.push(...remainProducts.slice(0, needCount));
+        }
+        
+        // 去重并限制最多4个
+        const unique = [];
+        const idSet = new Set();
+        for (let p of finalRecs) {
+            if (!idSet.has(p.id)) {
+                idSet.add(p.id);
+                unique.push(p);
+            }
+            if (unique.length === 4) break;
+        }
+        return unique;
+    }
+    
+    // 渲染猜你喜欢区域（保证不为空）
+    function renderRecommendations() {
+        const recs = getRecommendations();
+        const container = document.getElementById('recommendList');
+        if (!container) return;
+        
+        // 确保推荐区域可见（即便意外没有商品也显示占位，但理论上至少会有商品）
+        const section = document.getElementById('recommendSection');
+        if (section) section.style.display = 'block';
+        
+        if (recs.length === 0) {
+            // 极端情况：实在没有推荐（比如所有商品都买了），显示一些默认商品
+            const fallback = PRODUCTS.slice(0, 4);
+            let html = '';
+            fallback.forEach(p => {
+                html += `<div class="col-md-3 mb-4"><div class="card product-card h-100"><img src="${p.imageUrl}" class="card-img-top-custom" onerror="this.src='https://placehold.co/400x400?text=毕业文创'" alt="${p.name}"><div class="card-body"><h6 class="card-title">${p.name}</h6><p class="card-text text-muted small">${p.desc.substring(0,35)}...</p><div class="d-flex justify-content-between"><span class="fw-bold text-primary">¥${p.price}</span><button class="btn btn-sm btn-outline-warning rounded-pill rec-detail-btn" data-id="${p.id}">🎓 查看</button></div></div></div></div>`;
+            });
+            container.innerHTML = html;
+        } else {
+            let html = '';
+            recs.forEach(p => {
+                html += `<div class="col-md-3 mb-4"><div class="card product-card h-100"><img src="${p.imageUrl}" class="card-img-top-custom" onerror="this.src='https://placehold.co/400x400?text=毕业文创'" alt="${p.name}"><div class="card-body"><h6 class="card-title">${p.name}</h6><p class="card-text text-muted small">${p.desc.substring(0,35)}...</p><div class="d-flex justify-content-between"><span class="fw-bold text-primary">¥${p.price}</span><button class="btn btn-sm btn-outline-warning rounded-pill rec-detail-btn" data-id="${p.id}">🎓 查看</button></div></div></div></div>`;
+            });
+            container.innerHTML = html;
+        }
+        
+        // 绑定查看详情事件
+        document.querySelectorAll('.rec-detail-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(btn.dataset.id);
+                goToDetail(id);
+            });
+        });
+    }
+    
+    function renderHomeRecommend() { 
+        const recIds = [12, 3, 5, 41, 11, 51]; 
+        const recProducts = PRODUCTS.filter(p => recIds.includes(p.id)); 
+        const container = document.getElementById('homeRecommend'); 
+        let html = ''; 
+        recProducts.forEach(p => { 
+            html += `<div class="col-md-4 col-lg-4 mb-4"><div class="card product-card h-100"><img src="${p.imageUrl}" class="card-img-top-custom" onerror="this.src='https://placehold.co/400x400?text=毕业礼物'" alt="${p.name}"><div class="card-body"><h5 class="card-title">${p.name}</h5><p class="card-text text-muted">${p.desc}</p><div class="d-flex justify-content-between"><span class="h5 text-primary fw-bold">¥${p.price}</span><button class="btn btn-sm btn-graduation rounded-pill detail-btn" data-id="${p.id}">青春详情</button></div></div></div></div>`; 
+        }); 
+        container.innerHTML = html; 
+        document.querySelectorAll('.detail-btn').forEach(btn => btn.addEventListener('click', (e) => { const id = parseInt(btn.dataset.id); goToDetail(id); })); 
+    }
+    
+    function homeSearch() { 
+        const keyword = document.getElementById('homeSearchInput').value.trim(); 
+        if(!keyword) { alert('输入毕业好物关键词~'); return; } 
+        window.location.href = `productslist.html?keyword=${encodeURIComponent(keyword)}`; 
+    }
+    
+    function initBackToTop() { 
+        const backBtn = document.getElementById('backToTop'); 
+        window.addEventListener('scroll', () => backBtn.classList.toggle('show', window.scrollY > 300)); 
+        backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })); 
+    }
+    
+    function startAnimations() {
+        const container = document.getElementById('animationContainer');
+        const icons = ['🎓', '🎈', '📜', '🌸', '✨', '🕊️', '🎉'];
+        setInterval(() => {
+            const icon = icons[Math.floor(Math.random() * icons.length)];
+            const element = document.createElement('div');
+            element.className = icon === '🎈' ? 'floating-balloon' : 'floating-cap';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+            element.style.animationDuration = (Math.random() * 6 + 6) + 's';
+            element.innerHTML = icon;
+            container.appendChild(element);
+            setTimeout(() => { if(element && element.remove) element.remove(); }, 10000);
+        }, 1200);
+        setInterval(() => {
+            const leafIcon = Math.random() > 0.5 ? '🍂' : '🍁';
+            const leaf = document.createElement('div');
+            leaf.className = 'falling-leaf';
+            leaf.style.left = Math.random() * 100 + '%';
+            leaf.style.fontSize = (Math.random() * 1.2 + 1.2) + 'rem';
+            leaf.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            leaf.innerHTML = leafIcon;
+            container.appendChild(leaf);
+            setTimeout(() => leaf.remove(), 8000);
+        }, 800);
+    }
+
+    // 事件绑定与初始化
+    document.getElementById('homeSearchBtn')?.addEventListener('click', homeSearch);
+    document.getElementById('homeSearchInput')?.addEventListener('keypress', e => { if(e.key === 'Enter') homeSearch(); });
+    document.getElementById('cartNavLink')?.addEventListener('click', handleCartClick);
+    document.getElementById('userCenterLink')?.addEventListener('click', handleProfileClick);
+    
+    renderHomeRecommend();
+    updateCartBadge();
+    initBackToTop();
+    
+    // 关键修复：始终渲染猜你喜欢（无论是否登录，都有推荐内容）
+    renderRecommendations();
+    
+    startAnimations();
+</script>
+</body>
+</html>
